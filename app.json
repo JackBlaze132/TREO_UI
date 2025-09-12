@@ -8,8 +8,13 @@
     "scheme": "treo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.treo"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +24,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDEPXnNbDazMwAQg6LVU4WLkW7r6hcrDE0"
+        }
+      },
+      "package": "com.anonymous.treo"
     },
     "web": {
       "output": "static",

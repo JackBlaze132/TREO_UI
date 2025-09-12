@@ -18,24 +18,27 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'leaf.fill': 'park',
+  'fork.knife': 'restaurant',
+  'figure.walk': 'directions-walk',
+  'bag.fill': 'shopping-bag',
+  'location.fill': 'my-location',
 } as IconMapping;
 
+export type IconName = IconSymbolName;
+
 /**
- * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
- * This ensures a consistent look across platforms, and optimal resource usage.
- * Icon `name`s are based on SF Symbols and require manual mapping to Material Icons.
+ * A universal icon component that uses SF Symbols on iOS and falls back to Material Icons on Android and web.
+ * All icons are from the SF Symbols library.
+ * @see https://developer.apple.com/sf-symbols/
  */
-export function IconSymbol({
-  name,
-  size = 24,
-  color,
-  style,
-}: {
-  name: IconSymbolName;
-  size?: number;
-  color: string | OpaqueColorValue;
-  style?: StyleProp<TextStyle>;
-  weight?: SymbolWeight;
-}) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+export function IconSymbol({ name, style, ...props }: Omit<SymbolViewProps, 'name'> & { name: IconName }) {
+  return (
+    <MaterialIcons
+      name={MAPPING[name]}
+      style={style}
+      size={props.size}
+      color={props.color as string | OpaqueColorValue}
+    />
+  );
 }
