@@ -5,6 +5,7 @@ import MapView, { PROVIDER_GOOGLE, Marker, Callout } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyDEPXnNbDazMwAQg6LVU4WLkW7r6hcrDE0';
 
@@ -157,9 +158,9 @@ export default function MapScreen() {
         }}
       >
         {currentUserLocation && (
-            <Marker coordinate={currentUserLocation}>
-                <IconSymbol name="figure.stand" size={48} color="#007AFF" />
-            </Marker>
+          <Marker coordinate={currentUserLocation}>
+            <FontAwesome6 name="street-view" size={48} color="#007AFF" />
+          </Marker>
         )}
         {destination && (
           <MapViewDirections
