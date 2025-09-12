@@ -1,11 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker, Callout } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { StickyNote } from '@/components/ui/sticky-note';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyDEPXnNbDazMwAQg6LVU4WLkW7r6hcrDE0';
 
@@ -52,20 +51,59 @@ const routes = [
 
 const origin = { latitude: 4.4389, longitude: -75.2322 };
 
+const events = [
+    {
+        id: '1',
+        name: 'Festech',
+        location: 'Panamericana, Ibagué',
+        latitude: 4.4320,
+        longitude: -75.2150,
+    },
+    {
+        id: '2',
+        name: 'PijaoTech',
+        location: 'Aqua Centro Comercial, Ibagué',
+        latitude: 4.4286,
+        longitude: -75.2160,
+    },
+];
+
 export default function MapScreen() {
   const [destination, setDestination] = useState(null);
   const [routeColor, setRouteColor] = useState('hotpink');
   const [pois, setPois] = useState([]);
+  const [currentUserLocation, setCurrentUserLocation] = useState(null);
   const mapViewRef = useRef(null);
 
   useEffect(() => {
-    (async () => {
+    let locationSubscriber = null;
+
+    const startLocationUpdates = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         console.error('Permission to access location was denied');
         return;
       }
-    })();
+
+      locationSubscriber = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 1000,
+          distanceInterval: 1,
+        },
+        (location) => {
+          setCurrentUserLocation(location.coords);
+        }
+      );
+    };
+
+    startLocationUpdates();
+
+    return () => {
+      if (locationSubscriber) {
+        locationSubscriber.remove();
+      }
+    };
   }, []);
 
   const handleRoutePress = (route) => {
@@ -88,13 +126,14 @@ export default function MapScreen() {
   };
 
   const findMe = async () => {
-    let location = await Location.getCurrentPositionAsync({});
-    mapViewRef.current.animateToRegion({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
+    if (currentUserLocation) {
+        mapViewRef.current.animateToRegion({
+            latitude: currentUserLocation.latitude,
+            longitude: currentUserLocation.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+        });
+    }
   };
 
   const handleZoom = async (level) => {
@@ -117,9 +156,14 @@ export default function MapScreen() {
           longitudeDelta: 0.0421,
         }}
       >
+        {currentUserLocation && (
+            <Marker coordinate={currentUserLocation}>
+                <IconSymbol name="figure.stand" size={48} color="#007AFF" />
+            </Marker>
+        )}
         {destination && (
           <MapViewDirections
-            origin={origin}
+            origin={currentUserLocation || origin}
             destination={destination}
             apikey={GOOGLE_MAPS_APIKEY}
             strokeWidth={4}
@@ -134,19 +178,36 @@ export default function MapScreen() {
             title={poi.name}
           />
         ))}
+        {events.map(event => (
+            <Marker
+                key={event.id}
+                coordinate={{ latitude: event.latitude, longitude: event.longitude }}
+                title={event.name}
+                description={event.location}
+            >
+                <IconSymbol name="calendar" size={32} color="purple" />
+            </Marker>
+        ))}
         <Marker coordinate={{ latitude: 4.4075, longitude: -75.2815 }}>
-            <StickyNote text="Es peligroso en horas de la noche." />
+          <IconSymbol name="exclamationmark.circle.fill" size={32} color="#ffce00" />
+          <Callout>
+            <View style={styles.calloutContainer}>
+              <Text style={styles.calloutText}>peligroso a horas de la noche</Text>
+            </View>
+          </Callout>
         </Marker>
       </MapView>
       <View style={styles.header}>
-        <View style={styles.coinContainer}>
-            <Text style={styles.coinEmoji}>🪙</Text>
-            <Text style={styles.coinText}>100</Text>
+        <View style={styles.headerRight}>
+            <View style={styles.coinContainer}>
+                <Text style={styles.coinEmoji}>🪙</Text>
+                <Text style={styles.coinText}>100</Text>
+            </View>
+            <Image
+              source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
+              style={styles.avatar}
+            />
         </View>
-        <Image
-          source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
-          style={styles.avatar}
-        />
       </View>
       <View style={styles.zoomControlsContainer}>
         <TouchableOpacity onPress={() => handleZoom(1)} style={[styles.zoomButton, { borderBottomWidth: 1, borderBottomColor: '#ccc' }]}>
@@ -195,6 +256,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 10,
   },
   coinContainer: {
@@ -218,6 +283,22 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+  },
+  eventsButton: {
+    backgroundColor: 'white',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+        width: 0,
+        height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   zoomControlsContainer: {
     position: 'absolute',
@@ -307,5 +388,18 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: 'rgba(255, 255, 255, 0.5)',
     marginHorizontal: 15,
+  },
+  calloutContainer: {
+    backgroundColor: '#fefabc',
+    padding: 15,
+    borderRadius: 10,
+    width: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  calloutText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
   },
 });

@@ -16,13 +16,17 @@ type IconSymbolName = keyof typeof MAPPING;
 const MAPPING = {
   'house.fill': 'home',
   'paperplane.fill': 'send',
+  'calendar': 'event',
+  'list.bullet': 'list',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
   'leaf.fill': 'park',
   'fork.knife': 'restaurant',
   'figure.walk': 'directions-walk',
+  'figure.stand': 'accessibility',
   'bag.fill': 'shopping-bag',
   'location.fill': 'my-location',
+  'exclamationmark.circle.fill': 'warning',
 } as IconMapping;
 
 export type IconName = IconSymbolName;
