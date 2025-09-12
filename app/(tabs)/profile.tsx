@@ -6,6 +6,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 export default function ProfileScreen() {
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Perfil</Text>
       <View style={styles.avatarContainer}>
         <Image
           source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
@@ -15,10 +16,11 @@ export default function ProfileScreen() {
           <Text style={styles.profileLevelText}>LvL. 10</Text>
         </View>
       </View>
+      <Text style={styles.userName}>John Doe</Text>
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Rutas</Text>
           <Text style={styles.statValue}>5</Text>
-          <Text style={styles.statLabel}>Routes</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>exp.</Text>
@@ -77,8 +79,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  avatarContainer: {
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
     marginBottom: 20,
+  },
+  avatarContainer: {
+    marginBottom: 10,
   },
   avatar: {
     width: 150,
@@ -100,6 +107,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
   statsContainer: {
     flexDirection: 'row',

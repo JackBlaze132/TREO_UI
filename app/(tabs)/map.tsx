@@ -18,7 +18,7 @@ const routes = [
     ]
   },
   {
-    id: 2, name: 'Restaurante El Solar', type: 'restaurant', icon: 'fork.knife', color: '#ffce00', latitude: 4.4414, longitude: -75.2415, reward: 20,
+    id: 2, name: 'Restaurante El Solar', type: 'restaurant', icon: 'fork.knife', color: '#ff6d00', latitude: 4.4414, longitude: -75.2415, reward: 20,
     pois: []
   },
   {
@@ -37,7 +37,7 @@ const routes = [
     pois: []
   },
   {
-    id: 6, name: 'Augurio', type: 'restaurant', icon: 'fork.knife', color: '#ffce00', latitude: 4.4293, longitude: -75.2359, reward: 30,
+    id: 6, name: 'Augurio', type: 'restaurant', icon: 'fork.knife', color: '#ff6d00', latitude: 4.4293, longitude: -75.2359, reward: 30,
     pois: []
   },
   {
@@ -190,7 +190,7 @@ export default function MapScreen() {
             </Marker>
         ))}
         <Marker coordinate={{ latitude: 4.4075, longitude: -75.2815 }}>
-          <IconSymbol name="exclamationmark.circle.fill" size={32} color="#ffce00" />
+          <IconSymbol name="exclamationmark.circle.fill" size={32} color="#ff6d00" />
           <Callout>
             <View style={styles.calloutContainer}>
               <Text style={styles.calloutText}>peligroso a horas de la noche</Text>

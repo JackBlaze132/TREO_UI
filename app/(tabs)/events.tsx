@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 const events = [
   {
@@ -18,7 +18,7 @@ const events = [
 export default function EventsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Upcoming Events</Text>
+      <Text style={styles.title}>Proximos Eventos</Text>
       <FlatList
         data={events}
         keyExtractor={(item) => item.id}
