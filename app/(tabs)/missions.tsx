@@ -1,5 +1,7 @@
 
 import DonutChart from '@/components/DonutChart';
+import FireIcon from '@/components/FireIcon';
+import RouteIcon from '@/components/RouteIcon';
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -58,15 +60,21 @@ export default function MissionsScreen() {
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Rutas</Text>
-          <Text style={styles.statValue}>5</Text>
+          <View style={styles.routeIconContainer}>
+            <RouteIcon />
+            <Text style={styles.routeValue}>5</Text>
+          </View>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statLabel}>exp.</Text>
+          <Text style={styles.statLabel}>Exp. pts</Text>
           <DonutChart current={300} target={500} />
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Racha</Text>
-          <Text style={styles.statValue}>3</Text>
+          <View style={styles.fireContainer}>
+            <FireIcon />
+            <Text style={styles.streakValue}>3</Text>
+          </View>
         </View>
       </View>
 
@@ -118,7 +126,8 @@ const styles = StyleSheet.create({
   },
   statCard: {
     backgroundColor: '#f2f2f2',
-    padding: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
     borderRadius: 10,
     alignItems: 'center',
     width: '30%',
@@ -130,14 +139,46 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    minHeight: 120, 
   },
   statLabel: {
     fontSize: 16,
     color: '#666',
+    fontWeight: '600',
+  },
+  routeIconContainer: {
+    flex: 1,
+    //justifyContent: 'center',
+    alignItems: 'center',
+    width: 60, 
+    height: 60, 
+  },
+  routeValue: {
+    top: 22,
+    position: 'absolute',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'black',
+    //textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    //textShadowOffset: { width: 0, height: 0 },
+    //textShadowRadius: 10,
+  },
+  fireContainer: {
+    flex: 1,
+    //justifyContent: 'center',
+    alignItems: 'center',
+    width: 50, 
+    height: 50, 
+  },  
+  streakValue: {
+    top: 24,
+    position: 'absolute',
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'white',
+    //textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    //textShadowOffset: { width: 0, height: 0 },
+    //textShadowRadius: 10,
   },
   card: {
     backgroundColor: 'white',
