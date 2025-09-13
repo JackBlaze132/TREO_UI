@@ -8,17 +8,26 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 export default function ProfileScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Perfil</Text>
-      <View style={styles.avatarContainer}>
+      <View style={styles.header}>
         <Image
-          source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
-          style={styles.avatar}
+          style={styles.coverImage}
+          source={{ uri: 'https://picsum.photos/seed/picsum/200/300' }}
         />
-        <View style={styles.profileLevelIndicator}>
-          <Text style={styles.profileLevelText}>LvL. 10</Text>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
+            style={styles.avatar}
+          />
+          <View style={styles.profileLevelIndicator}>
+            <Text style={styles.profileLevelText}>LvL. 10</Text>
+          </View>
         </View>
       </View>
+
       <Text style={styles.userName}>John Doe</Text>
+      <Text style={styles.biography}>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      </Text>
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Rutas</Text>
@@ -84,27 +93,31 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    padding: 20,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 20,
+  header: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  coverImage: {
+    width: '100%',
+    height: 200,
   },
   avatarContainer: {
-    marginBottom: 10,
+    position: 'absolute',
+    top: 130,
   },
   avatar: {
     width: 150,
     height: 150,
     borderRadius: 75,
+    borderWidth: 4,
+    borderColor: 'white',
   },
   profileLevelIndicator: {
     position: 'absolute',
-    bottom: 2,
-    right: 0,
+    bottom: 10,
+    right: 5,
     backgroundColor: 'indigo',
     borderRadius: 20,
     paddingVertical: 5,
@@ -118,19 +131,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   userName: {
+    marginTop: 80,
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    textAlign: 'center',
+  },
+  biography: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginVertical: 10,
+    paddingHorizontal: 20,
   },
   sectionSubtitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
+    marginVertical: 20,
   },
   statCard: {
     backgroundColor: '#f2f2f2',
@@ -156,7 +179,6 @@ const styles = StyleSheet.create({
   },
   routeIconContainer: {
     flex: 1,
-    //justifyContent: 'center',
     alignItems: 'center',
     width: 60, 
     height: 60, 
@@ -167,13 +189,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'black',
-    //textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    //textShadowOffset: { width: 0, height: 0 },
-    //textShadowRadius: 10,
   },
   fireContainer: {
     flex: 1,
-    //justifyContent: 'center',
     alignItems: 'center',
     width: 50, 
     height: 50, 
@@ -184,15 +202,13 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
-    //textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    //textShadowOffset: { width: 0, height: 0 },
-    //textShadowRadius: 10,
   },
   divider: {
     height: 1,
     backgroundColor: '#ccc',
     width: '90%',
     marginVertical: 20,
+    alignSelf: 'center',
   },
   achievementsContainer: {
     flexDirection: 'row',

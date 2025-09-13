@@ -6,6 +6,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { useRouter } from 'expo-router';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyDEPXnNbDazMwAQg6LVU4WLkW7r6hcrDE0';
 
@@ -75,6 +76,7 @@ export default function MapScreen() {
   const [pois, setPois] = useState([]);
   const [currentUserLocation, setCurrentUserLocation] = useState(null);
   const mapViewRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     let locationSubscriber = null;
@@ -189,25 +191,29 @@ export default function MapScreen() {
                 <IconSymbol name="calendar" size={32} color="purple" />
             </Marker>
         ))}
-        <Marker coordinate={{ latitude: 4.4075, longitude: -75.2815 }}>
+        <Marker
+          coordinate={{ latitude: 4.4075, longitude: -75.2815 }}
+          title="¡Zona peligrosa!"
+          description="Ten cuidado al transitar por esta zona en la noche."
+        >
           <IconSymbol name="exclamationmark.circle.fill" size={32} color="#ff6d00" />
-          <Callout>
-            <View style={styles.calloutContainer}>
-              <Text style={styles.calloutText}>peligroso a horas de la noche</Text>
-            </View>
-          </Callout>
         </Marker>
       </MapView>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.eventsButton} onPress={() => router.push('/events')}>
+          <IconSymbol name="calendar" size={24} color="black" />
+        </TouchableOpacity>
         <View style={styles.headerRight}>
             <View style={styles.coinContainer}>
                 <Text style={styles.coinEmoji}>🪙</Text>
                 <Text style={styles.coinText}>100</Text>
             </View>
-            <Image
-              source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
-              style={styles.avatar}
-            />
+            <TouchableOpacity onPress={() => router.push('/profile')}>
+              <Image
+                source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
+                style={styles.avatar}
+              />
+            </TouchableOpacity>
         </View>
       </View>
       <View style={styles.zoomControlsContainer}>
@@ -255,7 +261,7 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   headerRight: {
