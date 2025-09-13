@@ -56,7 +56,7 @@ export default function DonutChart({ current, target, radius = 40, strokeWidth =
             fontSize="12"
             fill="#666"
         >
-          / {remaining}
+          {remaining}
         </SvgText>
       </Svg>
     </View>

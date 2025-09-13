@@ -1,0 +1,17 @@
+
+import React from 'react';
+import { SvgXml } from 'react-native-svg';
+
+const RouteIcon = () => {
+  const xml = `
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 445.79 512.17">
+  <g id="Layer_1-2" data-name="Layer 1">
+    <path fill="#ff6d00" d="M222.89,0C99.79,0,0,99.79,0,222.89s191.06,289.28,222.89,289.28c27.4,0,222.89-166.18,222.89-289.28S345.99,0,222.89,0ZM222.89,376.39c-84.78,0-153.5-68.72-153.5-153.5S138.12,69.39,222.89,69.39s153.5,68.72,153.5,153.5-68.72,153.5-153.5,153.5Z"/>
+  </g>
+</svg>
+  `;
+
+  return <SvgXml xml={xml} width="100%" height="100%" />;
+};
+
+export default RouteIcon;
