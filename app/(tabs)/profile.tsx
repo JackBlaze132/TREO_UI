@@ -3,48 +3,78 @@ import DonutChart from '@/components/DonutChart';
 import FireIcon from '@/components/FireIcon';
 import RouteIcon from '@/components/RouteIcon';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, ActivityIndicator, Button, ScrollView, RefreshControl } from 'react-native';
+import { useMe } from '../hooks/useMe';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
+  const { me, loading, error, refetch } = useMe();
+  const { logout } = useAuth();
+
+  if (loading && !me) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (error || !me) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <Text>Error fetching profile: {error?.message || 'Profile not found'}</Text>
+      </View>
+    );
+  }
+
+  const targetExperience = me.profile.level * 100;
+
   return (
-    <View style={styles.container}>
+    <ScrollView 
+        style={styles.container}
+        refreshControl={
+            <RefreshControl
+                refreshing={loading}
+                onRefresh={refetch}
+            />
+        }
+    >
       <View style={styles.header}>
         <Image
           style={styles.coverImage}
-          source={{ uri: 'https://picsum.photos/seed/picsum/200/300' }}
+          source={{ uri: 'https://picsum.photos/seed/picsum/200/300' }} // Static cover image
         />
         <View style={styles.avatarContainer}>
           <Image
-            source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
+            source={{ uri: me.profile.photo }}
             style={styles.avatar}
           />
           <View style={styles.profileLevelIndicator}>
-            <Text style={styles.profileLevelText}>LvL. 10</Text>
+            <Text style={styles.profileLevelText}>LvL. {me.profile.level}</Text>
           </View>
         </View>
       </View>
 
-      <Text style={styles.userName}>John Doe</Text>
-      <Text style={styles.biography}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-      </Text>
+      <Text style={styles.userName}>{me.username}</Text>
+      <Text style={styles.biography}>{me.profile.bio}</Text>
+      
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
-          <Text style={styles.statLabel}>Rutas</Text>
+          <Text style={styles.statLabel}>Logros</Text>
           <View style={styles.routeIconContainer}>
             <RouteIcon />
-            <Text style={styles.routeValue}>5</Text>
+            <Text style={styles.routeValue}>{me.achievements.length}</Text>
           </View>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Exp. pts</Text>
-          <DonutChart current={300} target={500} />
+          <DonutChart current={me.profile.experience} target={targetExperience} />
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Racha</Text>
           <View style={styles.fireContainer}>
             <FireIcon />
-            <Text style={styles.streakValue}>3</Text>
+            <Text style={styles.streakValue}>3</Text> 
           </View>
         </View>
       </View>
@@ -52,41 +82,21 @@ export default function ProfileScreen() {
       <View style={styles.divider} />
       <Text style={styles.sectionSubtitle}>Expositor</Text>
       <View style={styles.achievementsContainer}>
-        <View style={styles.achievementCard}>
-          <View>
-            <Image
-              source={{ uri: 'https://picsum.photos/seed/1/200' }}
-              style={styles.achievementImage}
-            />
-            <View style={styles.levelIndicator}>
-              <Text style={styles.levelText}>5</Text>
+        {me.achievements.slice(0, 3).map((achievement, index) => (
+          <View style={styles.achievementCard} key={achievement.id}>
+            <View>
+              <Image
+                source={{ uri: `https://picsum.photos/seed/${achievement.achievement}/200` }}
+                style={styles.achievementImage}
+              />
             </View>
           </View>
-        </View>
-        <View style={styles.achievementCard}>
-          <View>
-            <Image
-              source={{ uri: 'https://picsum.photos/seed/2/200' }}
-              style={styles.achievementImage}
-            />
-            <View style={styles.levelIndicator}>
-              <Text style={styles.levelText}>2</Text>
-            </View>
-          </View>
-        </View>
-        <View style={styles.achievementCard}>
-          <View>
-            <Image
-              source={{ uri: 'https://picsum.photos/seed/3/200' }}
-              style={styles.achievementImage}
-            />
-            <View style={styles.levelIndicator}>
-              <Text style={styles.levelText}>8</Text>
-            </View>
-          </View>
-        </View>
+        ))}
       </View>
-    </View>
+      <View style={styles.logoutButtonContainer}>
+        <Button title="Logout" onPress={logout} color="#FF3B30" />
+      </View>
+    </ScrollView>
   );
 }
 
@@ -94,6 +104,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     alignItems: 'center',
@@ -251,5 +265,10 @@ const styles = StyleSheet.create({
   levelText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  logoutButtonContainer: {
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 40, 
   },
 });

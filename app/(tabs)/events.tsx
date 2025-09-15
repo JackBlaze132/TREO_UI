@@ -1,33 +1,39 @@
 
 import React from 'react';
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
-
-const events = [
-  {
-    id: '1',
-    name: 'Festech',
-    location: 'Gobernacion del Tolima, Ibagué',
-    date: '2024-08-15T14:00:00.000Z',
-    image: 'https://picsum.photos/seed/1/200'
-  },
-  {
-    id: '2',
-    name: 'PijaoTech',
-    location: 'Aqua Centro Comercial, Ibagué',
-    date: '2024-09-20T10:30:00.000Z',
-    image: 'https://picsum.photos/seed/2/200'
-  },
-];
+import { ActivityIndicator, Dimensions, FlatList, Image, StyleSheet, Text, View, RefreshControl } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+import { useEvents } from '../hooks/useEvents';
 
 const EventCard = ({ event }) => {
     const eventDate = new Date(event.date);
     const date = eventDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
     const time = eventDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
+    const cardWidth = Dimensions.get('window').width - 40;
+    const imageHeight = 150;
+    const contentHeight = 120;
+    const zigzagHeight = 10;
+    const cardHeight = imageHeight + contentHeight;
+    const borderRadius = 10;
+    const zigzagCount = Math.floor(cardWidth / 10);
+    const zigzagWidth = cardWidth / zigzagCount;
+
+    let path = `M0 ${borderRadius} A${borderRadius} ${borderRadius} 0 0 1 ${borderRadius} 0 H${cardWidth - borderRadius} A${borderRadius} ${borderRadius} 0 0 1 ${cardWidth} ${borderRadius} V${cardHeight - zigzagHeight}`;
+
+    for (let i = 0; i < zigzagCount; i++) {
+        const x = cardWidth - (i * zigzagWidth);
+        path += ` L${x - (zigzagWidth / 2)} ${cardHeight} L${x - zigzagWidth} ${cardHeight - zigzagHeight}`;
+    }
+    path += ` V${borderRadius} A${borderRadius} ${borderRadius} 0 0 1 0 ${borderRadius} Z`;
+
+
     return (
-        <View style={styles.eventCard}>
-            <Image source={{ uri: event.image }} style={styles.eventImage} />
-            <View style={styles.eventInfo}>
+        <View style={{...styles.eventCard, height: cardHeight, width: cardWidth}}>
+            <Svg style={{ position: 'absolute', top: 0, left: 0}} height={cardHeight} width={cardWidth}>
+                <Path d={path} fill="white"/>
+            </Svg>
+            <Image source={{ uri: event.image }} style={{...styles.eventImage, width: cardWidth, height: imageHeight}} />
+            <View style={{...styles.eventInfo, top: imageHeight}}>
                 <Text style={styles.eventName}>{event.name}</Text>
                 <Text style={styles.eventLocation}>{event.location}</Text>
                 <View style={styles.dateContainer}>
@@ -39,14 +45,39 @@ const EventCard = ({ event }) => {
     );
 }
 
+
 export default function EventsScreen() {
+  const { events, loading, error, refetch } = useEvents();
+
+  if (loading && !events.length) { // Show activity indicator only on initial load
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text>Error fetching events.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Proximos Eventos</Text>
       <FlatList
         data={events}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <EventCard event={item} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={refetch}
+          />
+        }
       />
     </View>
   );
@@ -59,14 +90,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         backgroundColor: '#f0f0f0',
       },
+      centerContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
       title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
       },
       eventCard: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
+        backgroundColor: 'transparent',
         marginBottom: 20,
         shadowColor: '#000',
         shadowOffset: {
@@ -78,13 +112,16 @@ const styles = StyleSheet.create({
         elevation: 5,
       },
       eventImage: {
-        width: '100%',
-        height: 150,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
+        position: 'absolute',
+        top: 0,
+        left: 0,
       },
       eventInfo: {
         padding: 15,
+        position: 'absolute',
+        width: '100%',
       },
       eventName: {
         fontSize: 20,

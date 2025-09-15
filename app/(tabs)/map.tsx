@@ -1,82 +1,29 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker, Callout } from 'react-native-maps';
+import { View, StyleSheet, Image, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useRouter } from 'expo-router';
+import { useRoutes } from '../hooks/useRoutes';
+import { useEvents } from '../hooks/useEvents';
+import { useMe } from '../hooks/useMe';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyDEPXnNbDazMwAQg6LVU4WLkW7r6hcrDE0';
-
-const routes = [
-  {
-    id: 1, name: 'Parque de la Música', type: 'park', icon: 'leaf.fill', color: '#aac11f', latitude: 4.4335, longitude: -75.2372, reward: 10,
-    pois: [
-      { id: 101, name: 'Fuente Principal', latitude: 4.4338, longitude: -75.2370 },
-      { id: 102, name: 'Auditorio al Aire Libre', latitude: 4.4332, longitude: -75.2375 },
-    ]
-  },
-  {
-    id: 2, name: 'Restaurante El Solar', type: 'restaurant', icon: 'fork.knife', color: '#ff6d00', latitude: 4.4414, longitude: -75.2415, reward: 20,
-    pois: []
-  },
-  {
-    id: 3, name: 'Sendero Ecológico Combeima', type: 'walk', icon: 'figure.walk', color: '#00b7ff', latitude: 4.4069, longitude: -75.2811, reward: 15,
-    pois: [
-      { id: 301, name: 'Mirador del Río', latitude: 4.4080, longitude: -75.2800 },
-      { id: 302, name: 'Cascada La Escondida', latitude: 4.4055, longitude: -75.2825 },
-    ]
-  },
-  {
-    id: 4, name: 'Centro Comercial La Estación', type: 'shopping', icon: 'bag.fill', color: '#e51f4e', latitude: 4.4303, longitude: -75.2104, reward: 25,
-    pois: []
-  },
-  {
-    id: 5, name: 'Jardín Botánico San Jorge', type: 'park', icon: 'leaf.fill', color: '#aac11f', latitude: 4.4510, longitude: -75.2330, reward: 10,
-    pois: []
-  },
-  {
-    id: 6, name: 'Augurio', type: 'restaurant', icon: 'fork.knife', color: '#ff6d00', latitude: 4.4293, longitude: -75.2359, reward: 30,
-    pois: []
-  },
-  {
-    id: 7, name: 'Plaza de Bolívar', type: 'walk', icon: 'figure.walk', color: '#00b7ff', latitude: 4.4380, longitude: -75.2420, reward: 5,
-    pois: []
-  },
-  {
-    id: 8, name: 'Centro Comercial Multicentro', type: 'shopping', icon: 'bag.fill', color: '#e51f4e', latitude: 4.4285, longitude: -75.2154, reward: 35,
-    pois: []
-  },
-];
-
-const origin = { latitude: 4.4389, longitude: -75.2322 };
-
-const events = [
-    {
-        id: '1',
-        name: 'Festech',
-        location: 'Panamericana, Ibagué',
-        latitude: 4.4320,
-        longitude: -75.2150,
-    },
-    {
-        id: '2',
-        name: 'PijaoTech',
-        location: 'Aqua Centro Comercial, Ibagué',
-        latitude: 4.4286,
-        longitude: -75.2160,
-    },
-];
 
 export default function MapScreen() {
   const [destination, setDestination] = useState(null);
   const [routeColor, setRouteColor] = useState('hotpink');
-  const [pois, setPois] = useState([]);
+  const [waypoints, setWaypoints] = useState([]);
   const [currentUserLocation, setCurrentUserLocation] = useState(null);
   const mapViewRef = useRef(null);
   const router = useRouter();
+
+  const { routes, loading: routesLoading, error: routesError } = useRoutes();
+  const { events, loading: eventsLoading, error: eventsError } = useEvents();
+  const { me, loading: meLoading, error: meError } = useMe();
 
   useEffect(() => {
     let locationSubscriber = null;
@@ -110,9 +57,14 @@ export default function MapScreen() {
   }, []);
 
   const handleRoutePress = (route) => {
-    setDestination({ latitude: route.latitude, longitude: route.longitude });
+    if (route.waypoints && route.waypoints.length > 0) {
+      const firstWaypoint = route.waypoints[0];
+      setDestination({ latitude: firstWaypoint.latitude, longitude: firstWaypoint.longitude });
+    } else {
+      setDestination(null);
+    }
     setRouteColor(route.color);
-    setPois(route.pois || []);
+    setWaypoints(route.waypoints || []);
   };
 
   const onRouteReady = (result) => {
@@ -145,6 +97,14 @@ export default function MapScreen() {
     camera.zoom += level;
     mapViewRef.current.animateCamera(camera);
   };
+  
+  if (routesLoading || eventsLoading || meLoading) {
+    return (
+      <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -153,8 +113,8 @@ export default function MapScreen() {
         provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={{
-          latitude: origin.latitude,
-          longitude: origin.longitude,
+          latitude: 4.4389,
+          longitude: -75.2322,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
@@ -166,7 +126,7 @@ export default function MapScreen() {
         )}
         {destination && (
           <MapViewDirections
-            origin={currentUserLocation || origin}
+            origin={currentUserLocation || { latitude: 4.4389, longitude: -75.2322 }}
             destination={destination}
             apikey={GOOGLE_MAPS_APIKEY}
             strokeWidth={4}
@@ -174,14 +134,14 @@ export default function MapScreen() {
             onReady={onRouteReady}
           />
         )}
-        {pois.map(poi => (
+        {waypoints.map(waypoint => (
           <Marker
-            key={poi.id}
-            coordinate={{ latitude: poi.latitude, longitude: poi.longitude }}
-            title={poi.name}
+            key={waypoint.id}
+            coordinate={{ latitude: waypoint.latitude, longitude: waypoint.longitude }}
+            title={waypoint.name}
           />
         ))}
-        {events.map(event => (
+        {events.filter(event => event.latitude && event.longitude).map(event => (
             <Marker
                 key={event.id}
                 coordinate={{ latitude: event.latitude, longitude: event.longitude }}
@@ -206,11 +166,11 @@ export default function MapScreen() {
         <View style={styles.headerRight}>
             <View style={styles.coinContainer}>
                 <Text style={styles.coinEmoji}>🪙</Text>
-                <Text style={styles.coinText}>100</Text>
+                <Text style={styles.coinText}>{me ? me.profile.experience : '0'}</Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/profile')}>
               <Image
-                source={{ uri: 'https://www.bootdey.com/img/Content/avatar/avatar6.png' }}
+                source={{ uri: me ? me.profile.photo : '' }}
                 style={styles.avatar}
               />
             </TouchableOpacity>

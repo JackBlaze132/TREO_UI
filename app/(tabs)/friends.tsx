@@ -1,39 +1,40 @@
 
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
-
-const friendsData = [
-  {
-    id: '1',
-    name: 'John Doe',
-    username: 'johndoe',
-    photo: 'https://randomuser.me/api/portraits/men/1.jpg',
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    username: 'janesmith',
-    photo: 'https://randomuser.me/api/portraits/women/2.jpg',
-  },
-  {
-    id: '3',
-    name: 'Peter Jones',
-    username: 'peterjones',
-    photo: 'https://randomuser.me/api/portraits/men/3.jpg',
-  },
-];
+import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { usePublicProfiles } from '../hooks/usePublicProfiles';
 
 const FriendCard = ({ friend }) => (
   <View style={styles.card}>
     <Image source={{ uri: friend.photo }} style={styles.photo} />
     <View style={styles.info}>
       <Text style={styles.name}>{friend.name}</Text>
-      <Text style={styles.username}>@{friend.username}</Text>
+      <Text style={styles.username}>@{friend.user}</Text>
+    </View>
+    <View style={styles.levelIndicator}>
+        <Text style={styles.levelText}>LvL. {friend.level}</Text>
     </View>
   </View>
 );
 
 export default function FriendsScreen() {
+    const { profiles, loading, error, refetch } = usePublicProfiles();
+
+    if (loading && !profiles.length) {
+        return (
+          <View style={[styles.container, styles.center]}>
+            <ActivityIndicator size="large" />
+          </View>
+        );
+      }
+    
+      if (error) {
+        return (
+          <View style={[styles.container, styles.center]}>
+            <Text>Error fetching friends: {error.message}</Text>
+          </View>
+        );
+      }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Amigos</Text>
@@ -42,10 +43,16 @@ export default function FriendsScreen() {
         placeholder="Buscar amigos..."
       />
       <FlatList
-        data={friendsData}
+        data={profiles}
         renderItem={({ item }) => <FriendCard friend={item} />}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.user}
         style={styles.list}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={refetch}
+          />
+        }
       />
       <TouchableOpacity style={styles.fab}>
         <Text style={styles.fabIcon}>+</Text>
@@ -58,6 +65,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
@@ -101,6 +112,18 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 14,
     color: 'gray',
+  },
+  levelIndicator: {
+    backgroundColor: 'indigo',
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    marginLeft: 10, 
+  },
+  levelText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   fab: {
     position: 'absolute',
